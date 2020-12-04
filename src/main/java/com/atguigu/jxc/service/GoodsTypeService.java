@@ -14,7 +14,7 @@ import java.util.Map;
  * @date 2020.12.04 08:42
  */
 public interface GoodsTypeService {
-    String loadTree();
+    List<GoodsType> loadTree();
 
     ServiceVO save(String goodsTypeName, Integer pid);
 

@@ -28,30 +28,32 @@ public class GoodsTypeServiceImpl implements GoodsTypeService {
     private GoodsTypeDao goodsTypeDao;
 
     @Override
-    public String loadTree() {
+    public List<GoodsType> loadTree() {
 
-        List<GoodsType> listReturn = new ArrayList<>();
-        Map<Integer, GoodsType> map = new HashMap<Integer, GoodsType>();
+//        List<GoodsType> listReturn = new ArrayList<>();
+//        Map<Integer, GoodsType> map = new HashMap<Integer, GoodsType>();
+//
+//        List<GoodsType> list = goodsTypeDao.selectGoodsTypeList();
+//        for (GoodsType menu : list) {
+//            map.put(menu.getGoodsTypeId(),menu);
+//            if (menu.getPId() == -1) {
+//                listReturn.add(menu);
+//            }
+//        }
+//
+//        for (GoodsType menu : list) {
+//            GoodsType childMenu = menu;
+//            GoodsType parentMenu = map.get(childMenu.getPId());
+//            if (parentMenu != null) {
+//                parentMenu.getChildren().add(childMenu);
+//            }
+//        }
+//
+//        Gson gson = new Gson();
+//        String toJson = gson.toJson(listReturn);
+//        return toJson;
 
-        List<GoodsType> list = goodsTypeDao.selectGoodsTypeList();
-        for (GoodsType menu : list) {
-            map.put(menu.getGoodsTypeId(),menu);
-            if (menu.getPId() == -1) {
-                listReturn.add(menu);
-            }
-        }
-
-        for (GoodsType menu : list) {
-            GoodsType childMenu = menu;
-            GoodsType parentMenu = map.get(childMenu.getPId());
-            if (parentMenu != null) {
-                parentMenu.getChildren().add(childMenu);
-            }
-        }
-
-        Gson gson = new Gson();
-        String toJson = gson.toJson(listReturn);
-        return toJson;
+        return goodsTypeDao.selectGoodsTypeList();
     }
 
     @Override

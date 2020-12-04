@@ -18,4 +18,22 @@ public interface GoodsDao {
     List<Goods> getGoodsInventoryList(int offSet, Integer rows, String codeOrName, Integer goodsTypeId);
 
     Object getGoodsInventoryCount(String codeOrName, Integer goodsTypeId);
+
+    void saveGoods(Goods goods);
+
+    void updateGoods(Goods goods);
+
+    Goods selectGoodsById(Integer goodsId);
+
+    void deleteGoods(Integer goodsId);
+
+    List<Goods> getNoInventoryQuantity(int offSet, Integer rows, String nameOrCode);
+
+    List<Goods> getHasInventoryQuantity(int offSet, Integer rows, String nameOrCode);
+
+    void saveStock(Integer goodsId, Integer inventoryQuantity, double purchasingPrice);
+
+    List<Goods> selectListAlarm();
+
+    void deleteStock(Integer goodsId);
 }

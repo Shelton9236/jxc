@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.Keymap;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,12 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Autowired
     private GoodsDao goodsDao;
+
+    @Autowired
+    private SaleListGoodsService saleListGoodsService;
+
+    @Autowired
+    private CustomerReturnListGoodsService customerReturnListGoodsService;
 
     @Override
     public ServiceVO getCode() {
@@ -56,12 +63,12 @@ public class GoodsServiceImpl implements GoodsService {
 
         List<Goods> goodsList = goodsDao.getGoodsInventoryList(offSet,rows,codeOrName,goodsTypeId);
 
-           /*for (Goods goods : goodsList) {
+           for (Goods goods : goodsList) {
             // 销售总量等于销售单据的销售数据减去退货单据的退货数据
             goods.setSaleTotal(saleListGoodsService.getSaleTotalByGoodsId(goods.getGoodsId())
                     - customerReturnListGoodsService.getCustomerReturnTotalByGoodsId(goods.getGoodsId()));
 
-        }*/
+        }
 
         map.put("rows",goodsList);
         map.put("total",goodsDao.getGoodsInventoryCount(codeOrName,goodsTypeId));
@@ -77,44 +84,91 @@ public class GoodsServiceImpl implements GoodsService {
 
         List<Goods> goodsList = goodsDao.getGoodsInventoryList(offSet,rows,codeOrName,goodsTypeId);
         for (Goods goods : goodsList) {
-            
+            // 销售总量等于销售单据的销售数据减去退货单据的退货数据
+            goods.setSaleTotal(saleListGoodsService.getSaleTotalByGoodsId(goods.getGoodsId())
+                    - customerReturnListGoodsService.getCustomerReturnTotalByGoodsId(goods.getGoodsId()));
+        }
 
+        map.put("rows",goodsList);
+        map.put("total",goodsDao.getGoodsInventoryCount(codeOrName,goodsTypeId));
+
+        return map;
+    }
+
+    @Override
+    public ServiceVO saveOrUpdate(Goods goods) {
+        if(goods.getGoodsId() == null){
+            goodsDao.saveGoods(goods);
+        }else{
+            goodsDao.updateGoods(goods);
+        }
+        return new ServiceVO(SuccessCode.SUCCESS_CODE,SuccessCode.SUCCESS_MESS);
+    }
+
+    @Override
+    public ServiceVO deleteGoods(Integer goodsId) {
+        Goods goods = goodsDao.selectGoodsById(goodsId);
+        if(goods.getState() == 0){
+            goodsDao.deleteGoods(goodsId);
+            return new ServiceVO(SuccessCode.SUCCESS_CODE,SuccessCode.SUCCESS_MESS);
         }
         return null;
     }
 
     @Override
-    public ServiceVO saveOrUpdate(Goods goods) {
-        return null;
-    }
-
-    @Override
-    public ServiceVO deleteGoods(Integer goodsId) {
-        return null;
-    }
-
-    @Override
     public Map<String, Object> getNoInventoryQuantity(Integer page, Integer rows, String nameOrCode) {
-        return null;
+        Map<String,Object> map = new HashMap<>();
+        page = page == 0 ? 1 : page;
+        int offSet = (page - 1) * rows;
+        List<Goods> goodsList = goodsDao.getNoInventoryQuantity(offSet, rows, nameOrCode);
+        List<Goods> list = new ArrayList<>();
+        for (Goods goods : goodsList) {
+            if(goods.getInventoryQuantity() == -1 || goods.getInventoryQuantity() == 0){
+                list.add(goods);
+            }
+        }
+        map.put("rows",list);
+        return map;
     }
 
     @Override
     public Map<String, Object> getHasInventoryQuantity(Integer page, Integer rows, String nameOrCode) {
-        return null;
+        Map<String,Object> map = new HashMap<>();
+        page = page == 0 ? 1 : page;
+        int offSet = (page - 1) * rows;
+        List<Goods> goodsList = goodsDao.getHasInventoryQuantity(offSet, rows, nameOrCode);
+        List<Goods> list = new ArrayList<>();
+        for (Goods goods : goodsList) {
+            if(goods.getInventoryQuantity() != -1 || goods.getInventoryQuantity() != 0){
+                list.add(goods);
+            }
+        }
+        map.put("rows",list);
+        return map;
     }
 
     @Override
     public ServiceVO saveStock(Integer goodsId, Integer inventoryQuantity, double purchasingPrice) {
-        return null;
+        goodsDao.saveStock(goodsId,inventoryQuantity,purchasingPrice);
+        return new ServiceVO(SuccessCode.SUCCESS_CODE,SuccessCode.SUCCESS_MESS);
     }
 
     @Override
     public ServiceVO deleteStock(Integer goodsId) {
+        //goodsDao.deleteStock(goodsId);
+        Goods goods = goodsDao.selectGoodsById(goodsId);
+        if(goods.getState() == 0){
+            goodsDao.deleteStock(goodsId);
+            return new ServiceVO(SuccessCode.SUCCESS_CODE,SuccessCode.SUCCESS_MESS);
+        }
         return null;
     }
 
     @Override
     public Map<String, Object> getListAlarm() {
-        return null;
+        Map<String, Object> map = new HashMap<>();
+        List<Goods> goodsList = goodsDao.selectListAlarm();
+        map.put("rows",goodsList);
+        return map;
     }
 }
